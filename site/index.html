@@ -5,21 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hika</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="fontello/css/fontello.css">
 </head>
 <body>
     <div id="taskDiv">
         <div id="alphabetSelection">
-            <div class="alphabetSelection" onclick='selectAlphabet("hiragana")'>Hiragana</div>
-            <div class="alphabetSelection" onclick='selectAlphabet("katakana")'>Katakana</div>
-            <div class="alphabetSelection" onclick='selectAlphabet("both")'>Both</div>
+            <button class="bigButton" onclick='selectAlphabet("hiragana")'>Hiragana</button>
+            <button class="bigButton" onclick='selectAlphabet("katakana")'>Katakana</button>
+            <button class="bigButton" onclick='selectAlphabet("both")'>Both</button>
         </div>
     </div>
-    <div>
-        <div id="correct">test</div>
+    <div id="drawDiv">
+        <div id="correct"><p>You'll draw here.</p></div>
         <div id="canvDiv">
             <canvas width="200" height="200"></canvas>
         </div>
         <div id="clearButton" onclick="clearCanvas()">Clear</div>
+        <div class="loading" style="display: none;">
+            <i class="icon-spin5 animate-spin"></i>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>

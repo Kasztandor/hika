@@ -1,5 +1,8 @@
+//import fontello
+    
 *
     z-index: 0
+    --user-select: none
     
 body
     margin: 0
@@ -24,11 +27,13 @@ body
         margin: 10px
         text-align: center
         >#correct
+            color: blue
             position: absolute
             display: flex
             justify-content: center
             align-items: center
-            font-size: 60px
+            font-size: 110px
+            line-height: 110px
             top: 0
             left: 0
             width: 100%
@@ -36,6 +41,9 @@ body
             background: white
             border-radius: 5px
             z-index: 3
+            >p
+                font-size: 16px
+                line-height: 16px
         >#canvDiv
             position: absolute
             left: 0
@@ -77,20 +85,86 @@ body
         .clearButtonShow
             bottom: -40px !important
     #taskDiv
+        display: flex
+        justify-content: center
+        align-items: center
+        flex-direction: column
+        button
+            height: 30px
+            border-radius: 5px
+            background: blue
+            color: white
+            outline: 1px solid #000
+            border: none
+            cursor: pointer
+            margin: 5px
+            &.bigButton
+                width: 100px
+            &.smallButton
+                width: 50px
+            &.mediumButton
+                width: 75px
+            &:hover
+                background: #09099b
+        >div
+            margin: 3px
         #alphabetSelection
             display: flex
             height: 100%
             justify-content: space-around
             align-items: center
             flex-direction: column
-            .alphabetSelection
-                width: 80px
-                height: 20px
-                border-radius: 5px
-                background: blue
-                color: white
-                outline: 1px solid #000
-                padding: 5px
-                cursor: pointer
-            .alphabetSelection:hover
-                background: #09099b
+        >.japChar
+            margin-top: 10px
+            margin-bottom: 10px
+            font-size: 30px
+            line-height: 30px
+        >#detected
+            height: 20px
+            line-height: 16px
+    .loading
+        position: absolute
+        display: flex
+        justify-content: center
+        align-items: center
+        z-index: 10
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
+        margin: 0 !important
+        border-radius: 5px
+        outline: 1px solid black
+        >i
+            display: flex
+            animation: spin 2s linear infinite
+            font-size: 100px
+            color: blue
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5)
+
+.good
+    outline: 3px solid green !important
+
+.bad
+    outline: 3px solid red !important
+
+.shake
+    animation: shake .5s linear
+
+@keyframes spin
+    from
+        transform: rotate(0deg)
+    to
+        transform: rotate(360deg)
+
+@keyframes shake
+    0%, 100%
+        transform: translateX(0)
+    25%
+        transform: translateX(-20%)
+    50%
+        transform: translateX(20%)
+    75%
+        transform: translateX(-20%)
+    100%
+        transform: translateX(0)

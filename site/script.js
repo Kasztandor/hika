@@ -31,14 +31,70 @@ let ctx = canvas.getContext("2d");
 let body = document.getElementsByTagName("body")[0]
 let taskDiv = document.getElementById("taskDiv")
 let correctDiv = document.getElementById("correct")
+let drawDiv = document.getElementById("drawDiv")
 let mouseDown = false
 let drawBlock = true
 let answerSubmitable = false
+let buttonBlock = false
 let selectedAlphabet = ""
 let currentCharacter = ""
 
 let mousePos = {x: 0, y: 0}
 let prevMousePos = {x: 0, y: 0}
+
+function loader(block){
+    buttonBlock = block
+    let loadingElements = document.querySelectorAll(".loading");
+    loadingElements.forEach(element => {
+        element.style.display = block ? "" : "none";
+    });
+}
+
+function check(){
+    if (buttonBlock)
+        return
+    if (!answerSubmitable){
+        alert("Please draw something first")
+        return
+    }
+    if (drawDiv.classList.contains("shake") || drawDiv.classList.contains("bad") || drawDiv.classList.contains("good")) {
+        alert("You need to modify your drawing before checking again")
+        return
+    }
+    hideCharacter()
+    buttonBlock = true
+
+    // Add white background to canvas
+    let tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    let tempCtx = tempCanvas.getContext('2d');
+    tempCtx.fillStyle = "white";
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    tempCtx.drawImage(canvas, 0, 0);
+
+    let image = tempCanvas.toDataURL();
+    loader(true)
+    fetch("/get-image", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({image: image, alphabet: currentCharacter.alphabet})
+    }).then(res => res.text()).then(text => {
+        loader(false)
+        if (text.trim() == hiragana[currentCharacter.key] && currentCharacter.alphabet == "hiragana" || text.trim() == katakana[currentCharacter.key] && currentCharacter.alphabet == "katakana") {
+            drawDiv.classList.add("good")
+            document.querySelector("#nextButton").innerHTML = "Next"
+        } else {
+            drawDiv.classList.add("shake", "bad")
+            document.querySelector("#detected").innerHTML = "Detected: "+text
+        }
+    }).catch(err => {
+        alert("Something went wrong");
+        loader(false);
+    })
+}
 
 function randomCharacter(alphabet="both"){
     let keys = Object.keys(hiragana)
@@ -50,35 +106,39 @@ function randomCharacter(alphabet="both"){
     else
         return {key: key2, alphabet: "katakana"}
 }
-function checkCharacter(){
-    if (!answerSubmitable)
+function showCharacter(){
+    if (buttonBlock)
         return
-    correctDiv.style.display = "block"
+    correctDiv.style.display = ""
     if (currentCharacter.alphabet)
         correctDiv.innerHTML = hiragana[currentCharacter.key]
     else
         correctDiv.innerHTML = katakana[currentCharacter.key]
-    document.querySelector("#checkButton").innerHTML = "Show drawing"
-    document.querySelector("#checkButton").onclick = uncheckCharacter
+    document.querySelector("#showButton").innerHTML = "Hide"
+    document.querySelector("#showButton").onclick = hideCharacter
 }
-function uncheckCharacter(){
+function hideCharacter(){
+    if (buttonBlock)
+        return
     correctDiv.innerHTML = ""
     correctDiv.style.display = "none"
-    document.querySelector("#checkButton").innerHTML = "Check"
-    document.querySelector("#checkButton").onclick = checkCharacter
+    document.querySelector("#showButton").innerHTML = "Show"
+    document.querySelector("#showButton").onclick = showCharacter
 }
 function nextCharacter(forceallow = false){
-    if (!answerSubmitable && !forceallow)
-        return
     currentCharacter = randomCharacter(selectedAlphabet)
     taskDiv.innerHTML = `
-    Alphabet: ${selectedAlphabet}<br><br>
-    Draw the following character:<br><br>
-    ${currentCharacter.key}<br><br>
-    <button id='checkButton' onclick='checkCharacter()'>Check</button>
-    <button onclick='nextCharacter()'>Next</button>
+    <div>Alphabet: ${selectedAlphabet}</div>
+    <div class="japChar">${currentCharacter.key}</div>
+    <div>
+        <button id='showButton' class="smallButton" onclick='showCharacter()'>Show</button>
+        <button class="smallButton" onclick='check()'>Check</button>
+        <button id="nextButton" onclick='nextCharacter()' class="smallButton">Skip</button>
+    </div>
+    <div id="detected"></div>
+    <div class="loading" style="display: none;"><i class="icon-spin5 animate-spin"></i></div>
     `
-    uncheckCharacter()
+    hideCharacter()
     clearCanvas()
 }
 function selectAlphabet(alphabet){
@@ -92,6 +152,7 @@ function clearCanvas(){
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     document.getElementById("clearButton").classList.remove("clearButtonShow")
     answerSubmitable = false
+    drawDiv.classList.remove("shake", "bad", "good");
 }
 
 function mouseMover(p){
@@ -129,6 +190,8 @@ function mouseMover(p){
         if (!document.getElementById("clearButton").classList.contains("clearButtonShow"))
             document.getElementById("clearButton").classList.add("clearButtonShow")
         answerSubmitable = true
+
+        drawDiv.classList.remove("shake", "bad", "good")
     }
 }
 addEventListener('mousemove', mouseMover, false);
